@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamburgueria do Binha | Cardápio Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --primary: #ffc107;
+            --secondary: #e53935;
+            --text-color: #f5f5f5;
+            --text-muted: #aaaaaa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 90px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a1a, #000);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container h1 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .logo-container p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin: 30px 0 15px 0;
+            border-left: 5px solid var(--secondary);
+            padding-left: 10px;
+            text-transform: uppercase;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 600px) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .menu-item {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: 1px solid #2a2a2a;
+            transition: transform 0.2s;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .item-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .item-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #4caf50;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .item-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .btn-add {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-add:hover {
+            background-color: #c62828;
+        }
+
+        /* Cart Floating Bar */
+        .cart-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #1a1a1a;
+            border-top: 3px solid var(--primary);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .cart-info {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .btn-checkout {
+            background-color: #25d366;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+
+        .btn-checkout:hover {
+            background-color: #1ebe5d;
+        }
+
+        /* Modal Carrinho Detalhes */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .cart-content {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid var(--primary);
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .cart-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 8px;
+        }
+
+        .cart-actions {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .cart-actions button {
+            background: #333;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .checkout-form {
+            margin-top: 15px;
+        }
+
+        .checkout-form label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .checkout-form input, .checkout-form textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: #121212;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .notice {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            color: #ffecb3;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <h1>Hamburgueria do Binha</h1>
+            <p><i class="fa-solid fa-fire"></i> Hambúrgueres Caseiros e Queijo Serrano <i class="fa-solid fa-fire"></i></p>
+            <p style="margin-top: 5px; font-size: 0.8rem; color: #25d366;"><i class="fa-brands fa-whatsapp"></i> (49) 99812-8840</p>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- HAMBÚRGUERES -->
+        <h2 class="section-title">Hambúrgueres Artesanais</h2>
+        <div class="menu-grid">
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Classic Burger</span>
+                        <span class="item-price">R$ 20,00</span>
+                    </div>
+                    <div class="item-desc">Hambúrguer de carne, presunto, queijo, tomate, alface, cebola roxa, pickles e molho caseiro.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Classic Burger', 20.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Bacon Burger</span>
+                        <span class="item-price">R$ 27,00</span>
+                    </div>
+                    <div class="item-desc">Hambúrguer de carne, bacon, presunto, queijo, tomate, alface, cebola roxa, pickles e molho caseiro.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Bacon Burger', 27.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Heart Burger</span>
+                        <span class="item-price">R$ 27,00</span>
+                    </div>
+                    <div class="item-desc">Hambúrguer de carne, coração, presunto, queijo, tomate, alface, cebola roxa, pickles e molho caseiro.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Heart Burger', 27.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Peperone Burger</span>
+                        <span class="item-price">R$ 25,00</span>
+                    </div>
+                    <div class="item-desc">Hambúrguer de carne, calabresa, presunto, queijo, tomate, alface, cebola roxa, pickles e molho caseiro.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Peperone Burger', 25.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Sausage Burger</span>
+                        <span class="item-price">R$ 23,00</span>
+                    </div>
+                    <div class="item-desc">Hambúrguer de carne, salsicha, presunto, queijo, tomate, alface, cebola roxa, pickles e molho caseiro.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Sausage Burger', 23.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Maia Burger</span>
+                        <span class="item-price">R$ 20,00</span>
+                    </div>
+                    <div class="item-desc">Queijo duplo, tomate, alface, cebola roxa, pickles e molho caseiro.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Maia Burger', 20.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Chicken Burger</span>
+                        <span class="item-price">R$ 25,00</span>
+                    </div>
+                    <div class="item-desc">Hambúrguer de carne, filé de frango, presunto, queijo, tomate, alface, cebola roxa, pickles e molho caseiro.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Chicken Burger', 25.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Egg Burger</span>
+                        <span class="item-price">R$ 23,00</span>
+                    </div>
+                    <div class="item-desc">Hambúrguer de carne, ovo, presunto, queijo, tomate, alface, cebola roxa, pickles e molho caseiro.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Egg Burger', 23.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Binha Burger</span>
+                        <span class="item-price">R$ 40,00</span>
+                    </div>
+                    <div class="item-desc">Hambúrguer de carne, bacon, calabresa, frango, ovo, presunto, queijo, tomate, alface, cebola roxa, pickles e molho caseiro.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Binha Burger', 40.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Kids Burguer</span>
+                        <span class="item-price">R$ 15,00</span>
+                    </div>
+                    <div class="item-desc">Hambúrguer de carne, queijo, presunto e molho caseiro.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Kids Burguer', 15.00)">Adicionar</button>
+            </div>
+        </div>
+
+        <!-- MISTO QUENTE E MONTE O SEU -->
+        <h2 class="section-title">Misto - Quente & Monte o Seu</h2>
+        <div class="menu-grid">
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Pão de Forma</span>
+                        <span class="item-price">R$ 10,00</span>
+                    </div>
+                    <div class="item-desc">Presunto e queijo.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Misto Pão de Forma', 10.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Pão Integral</span>
+                        <span class="item-price">R$ 10,00</span>
+                    </div>
+                    <div class="item-desc">Presunto e queijo.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Misto Pão Integral', 10.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Pão de Hambúrguer</span>
+                        <span class="item-price">R$ 10,00</span>
+                    </div>
+                    <div class="item-desc">Presunto e queijo.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Misto Pão de Hambúrguer', 10.00)">Adicionar</button>
+            </div>
+        </div>
+
+        <!-- ACOMPANHAMENTOS -->
+        <h2 class="section-title">Acompanhamentos</h2>
+        <div class="menu-grid">
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Batata Frita</span>
+                        <span class="item-price">R$ 15,00</span>
+                    </div>
+                    <div class="item-desc">Porção de 500g (pesados in natura).</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Batata Frita', 15.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Batata Frita c/ Queijo</span>
+                        <span class="item-price">R$ 18,00</span>
+                    </div>
+                    <div class="item-desc">Porção de 500g (pesados in natura).</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Batata Frita c/ Queijo', 18.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Batata Frita c/ Queijo e Bacon</span>
+                        <span class="item-price">R$ 22,00</span>
+                    </div>
+                    <div class="item-desc">Porção de 500g (pesados in natura).</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Batata Frita c/ Queijo e Bacon', 22.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Onion Rings (10 unid.)</span>
+                        <span class="item-price">R$ 20,00</span>
+                    </div>
+                    <div class="item-desc">Cebolas empanadas crocantes.</div>
+                </div>
+                <button class="btn-add" onclick="addItem('Onion Rings', 20.00)">Adicionar</button>
+            </div>
+        </div>
+
+        <!-- BEBIDAS -->
+        <h2 class="section-title">Bebidas</h2>
+        <div class="menu-grid">
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Coca-Cola 350ml</span>
+                        <span class="item-price">R$ 7,00</span>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="addItem('Coca-Cola 350ml', 7.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Coca-Cola Zero 350ml</span>
+                        <span class="item-price">R$ 7,00</span>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="addItem('Coca-Cola Zero 350ml', 7.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Pureza 350ml</span>
+                        <span class="item-price">R$ 5,00</span>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="addItem('Pureza 350ml', 5.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Fanta 350ml</span>
+                        <span class="item-price">R$ 6,00</span>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="addItem('Fanta 350ml', 6.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Schweppes Citrus 350ml</span>
+                        <span class="item-price">R$ 6,00</span>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="addItem('Schweppes Citrus 350ml', 6.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Água Mineral (C/ ou S/ Gás)</span>
+                        <span class="item-price">R$ 2,50 - 3,00</span>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="addItem('Água Mineral', 3.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Cerveja Original Lata</span>
+                        <span class="item-price">R$ 7,00</span>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="addItem('Cerveja Original Lata', 7.00)">Adicionar</button>
+            </div>
+
+            <div class="menu-item">
+                <div>
+                    <div class="item-header">
+                        <span class="item-title">Monster Tradicional 473ml</span>
+                        <span class="item-price">R$ 14,00</span>
+                    </div>
+                </div>
+                <button class="btn-add" onclick="addItem('Monster Tradicional', 14.00)">Adicionar</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BARRA INFERIOR DO CARRINHO -->
+    <div class="cart-bar" id="cartBar" style="display: none;">
+        <div class="cart-info">
+            <span id="cartCount">0</span> itens | Total: <span id="cartTotal">R$ 0,00</span>
+        </div>
+        <button class="btn-checkout" onclick="openCartModal()">
+            <i class="fa-solid fa-cart-shopping"></i> Ver Carrinho
+        </button>
+    </div>
+
+    <!-- MODAL DO CARRINHO -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h3>Seu Pedido</h3>
+                <button class="close-modal" onclick="closeCartModal()">&times;</button>
+            </div>
+            
+            <div class="notice">
+                Adicionais gerais disponíveis (R$ 5,00): Salada (tomate, alface, cebola caramelizada na manteiga) ou Ovo por R$ 3,00. Informe nas observações se desejar!
+            </div>
+
+            <div id="cartItemsList">
+                <!-- Itens injetados via JS -->
+            </div>
+
+            <div class="checkout-form">
+                <label for="clientName">Seu Nome:</label>
+                <input type="text" id="clientName" placeholder="Digite seu nome completo">
+
+                <label for="clientAddress">Endereço de Entrega (ou se é Retirada):</label>
+                <textarea id="clientAddress" rows="2" placeholder="Rua, número, bairro e referência"></textarea>
+
+                <label for="clientObs">Observações (ex: tirar cebola, ponto da carne, etc):</label>
+                <textarea id="clientObs" rows="2" placeholder="Ex: Sem cebola, por favor"></textarea>
+
+                <button class="btn-checkout" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="sendWhatsApp()">
+                    <i class="fa-brands fa-whatsapp"></i> Enviar Pedido via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+
+        function addItem(name, price) {
+            let existing = cart.find(item => item.name === name);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ name, price, qty: 1 });
+            }
+            updateCartUI();
+        }
+
+        function changeQty(name, delta) {
+            let item = cart.find(item => item.name === name);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) {
+                    cart = cart.filter(i => i.name !== name);
+                }
+            }
+            updateCartUI();
+            renderModalItems();
+        }
+
+        function updateCartUI() {
+            let totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+            let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            document.getElementById('cartCount').innerText = totalCount;
+            document.getElementById('cartTotal').innerText = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+
+            let cartBar = document.getElementById('cartBar');
+            if (totalCount > 0) {
+                cartBar.style.display = 'flex';
+            } else {
+                cartBar.style.display = 'none';
+                closeCartModal();
+            }
+        }
+
+        function openCartModal() {
+            renderModalItems();
+            document.getElementById('cartModal').style.display = 'flex';
+        }
+
+        function closeCartModal() {
+            document.getElementById('cartModal').style.display = 'none';
+        }
+
+        function renderModalItems() {
+            let listDiv = document.getElementById('cartItemsList');
+            if (cart.length === 0) {
+                listDiv.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 20px;">Carrinho vazio</p>';
+                return;
+            }
+
+            let html = '';
+            cart.forEach(item => {
+                html += `
+                    <div class="cart-item-row">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            <span style="color: #4caf50; font-size: 0.85rem;">R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div class="cart-actions">
+                            <button onclick="changeQty('${item.name}', -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button onclick="changeQty('${item.name}', 1)">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        function sendWhatsApp() {
+            let name = document.getElementById('clientName').value.trim();
+            let address = document.getElementById('clientAddress').value.trim();
+            let obs = document.getElementById('clientObs').value.trim();
+
+            if (!name) {
+                alert('Por favor, informe seu nome.');
+                return;
+            }
+            if (!address) {
+                alert('Por favor, informe o endereço de entrega ou retirada.');
+                return;
+            }
+
+            let text = `*Novo Pedido - Hamburgueria do Binha* %0A%0A`;
+            text += `*Cliente:* ${name}%0A`;
+            text += `*Endereço:* ${address}%0A`;
+            if (obs) text += `*Observações:* ${obs}%0A`;
+            text += `%0A*Itens do Pedido:*%0A`;
+
+            let totalPrice = 0;
+            cart.forEach(item => {
+                let subtotal = item.price * item.qty;
+                totalPrice += subtotal;
+                text += `- ${item.qty}x ${item.name} (R$ ${subtotal.toFixed(2).replace('.', ',')})%0A`;
+            });
+
+            text += `%0A*Total a Pagar:* R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+
+            let phone = '5549998128840';
+            let url = `https://wa.me/${phone}?text=${text}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
